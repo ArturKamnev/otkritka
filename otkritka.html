@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Адаптация под мобильные устройства -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Открытка</title>
+  <style>
+    /* ======= Базовые стили и фон ======= */
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #fff8e1; /* молочный фон */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: sans-serif;
+      overflow: hidden; /* чтобы не было прокрутки */
+      position: relative; /* для абсолютного позиционирования всплывающих элементов */
+    }
+
+    /* ======= Контейнер сердца =======
+       Размер: либо 600×600, либо 80vw (на маленьких экранах)
+    */
+    #heart-container {
+      position: relative;
+      width: min(600px, 80vw);
+      height: min(600px, 80vw);
+      overflow: visible;
+    }
+
+    /* ======= Само сердце (SVG) =======
+       Анимация «биения» (пульс)
+    */
+    #heart-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      animation: beat 1s infinite;
+    }
+    @keyframes beat {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.1); }
+    }
+
+    /* ======= Каждая половинка сердца ======= */
+    #leftHalf, #rightHalf {
+      transition: transform 1s;
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+
+    /* ======= Текст на закрытом сердце ======= */
+    #heart-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-32%, -85%);
+      font-size: 4vw;
+      color: white;
+      text-shadow: 1px 1px 2px black;
+      pointer-events: none;
+      transition: opacity 0.5s;
+      z-index: 3;
+    }
+    @media (min-width: 800px) {
+      #heart-text {
+        font-size: 64px;
+      }
+    }
+
+    /* ======= Контейнер с поздравлением ======= */
+    #message-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -54%);
+      width: 80%;
+      background-color: transparent;
+      color: red;
+      border-radius: 10px;
+      display: none;
+      padding: 20px;
+      text-align: center;
+      font-size: 3.5vw;
+      line-height: 1.4;
+      box-sizing: border-box;
+      z-index: 2;
+    }
+    @media (min-width: 800px) {
+      #message-container {
+        font-size: 20px;
+      }
+    }
+
+    /* ======= Кнопка «Открыть/Закрыть» ======= */
+    #open-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    /* ======= Всплывающие фразы ======= */
+    .floating-phrase {
+      position: absolute;
+      font-size: 3vw;
+      color: #e60000;
+      opacity: 0;
+      transition: opacity 1s;
+      pointer-events: none;
+      z-index: -1;
+      text-shadow: 1px 1px 2px white;
+      /* Анимация пульсации, угол задаётся через CSS-переменную --rotate */
+      animation: phraseBeat 1s infinite;
+    }
+    @media (min-width: 800px) {
+      .floating-phrase {
+        font-size: 28px;
+      }
+    }
+
+    /* ======= Всплывающая картинка ======= */
+    .floating-picture {
+      position: absolute;
+      max-width: 200px; /* картинка побольше */
+      transition: opacity 1s;
+      pointer-events: none;
+      z-index: -1;
+      /* Пульсирует с использованием CSS-переменной --rotate */
+      animation: phraseBeat 1s infinite;
+      opacity: 0;
+    }
+
+    /* ======= Анимация пульсации для всплывающих элементов ======= 
+         Используем CSS-переменную --rotate для сохранения случайного угла
+    */
+    @keyframes phraseBeat {
+      0%, 100% {
+        transform: rotate(var(--rotate)) scale(1);
+      }
+      50% {
+        transform: rotate(var(--rotate)) scale(1.1);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Контейнер с сердцем -->
+  <div id="heart-container">
+    <!-- Контейнер с поздравлением -->
+    <div id="message-container">
+      <p>
+        Мамочка, поздравляю тебя с Восьмым марта! 🌷<br>
+        Спасибо тебе за нежность, тепло и бесконечную любовь, которой ты наполняешь моё сердце каждый день.
+        Ты — мой самый светлый человек, моя опора и вдохновение.
+        Пусть твоя жизнь будет наполнена улыбками, радостью и счастьем,
+        ведь ты этого достойна как никто другой.
+        Я тебя очень сильно люблю и благодарю за всё, что ты делаешь для меня.
+        Будь всегда такой же прекрасной, любимой и счастливой! ❤️✨
+      </p>
+    </div>
+
+    <!-- Текст на закрытом сердце -->
+    <div id="heart-text">С 8 марта, Мама!</div>
+
+    <!-- SVG-сердце из двух половинок -->
+    <svg id="heart-svg" viewBox="0 0 100 100">
+      <defs>
+        <clipPath id="leftClip">
+          <rect x="0" y="0" width="50" height="100"/>
+        </clipPath>
+        <clipPath id="rightClip">
+          <rect x="50" y="0" width="50" height="100"/>
+        </clipPath>
+      </defs>
+      <g id="leftHalf" clip-path="url(#leftClip)">
+        <path d="M50,15 C20,0 0,30 50,70 C100,30 80,0 50,15 Z" fill="red"/>
+      </g>
+      <g id="rightHalf" clip-path="url(#rightClip)">
+        <path d="M50,15 C20,0 0,30 50,70 C100,30 80,0 50,15 Z" fill="red"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Кнопка «Открыть/Закрыть» -->
+  <button id="open-button">Открыть</button>
+
+  <script>
+    const openButton       = document.getElementById('open-button');
+    const leftHalf         = document.getElementById('leftHalf');
+    const rightHalf        = document.getElementById('rightHalf');
+    const heartText        = document.getElementById('heart-text');
+    const messageContainer = document.getElementById('message-container');
+
+    let isAnimating = false; // блокирует повторные клики во время анимации
+    let isOpen = false;      // состояние сердца
+    let pictureInterval = null; // интервал для появления картинок
+
+    // Функция открытия сердца
+    function openHeart() {
+      leftHalf.style.transform  = 'translateX(-37px)';
+      rightHalf.style.transform = 'translateX(37px)';
+      heartText.style.opacity = '0';
+      messageContainer.style.display = 'block';
+      // Запускаем появление картинок сразу и каждые 3 секунды
+      spawnPicture();
+      pictureInterval = setInterval(spawnPicture, 3000);
+    }
+
+    // Функция закрытия сердца
+    function closeHeart() {
+      leftHalf.style.transform  = 'translateX(0)';
+      rightHalf.style.transform = 'translateX(0)';
+      messageContainer.style.display = 'none';
+      // Останавливаем цикл появления картинок
+      if(pictureInterval) {
+        clearInterval(pictureInterval);
+        pictureInterval = null;
+      }
+      setTimeout(() => {
+        heartText.style.opacity = '1';
+        isAnimating = false;
+      }, 1000);
+    }
+
+    openButton.addEventListener('click', () => {
+      if (isAnimating) return;
+      isAnimating = true;
+      if (isOpen) {
+        closeHeart();
+        isOpen = false;
+        openButton.textContent = 'Открыть';
+      } else {
+        openHeart();
+        isOpen = true;
+        setTimeout(() => { isAnimating = false; }, 1000);
+        openButton.textContent = 'Закрыть';
+      }
+    });
+
+    /* ================= Всплывающие фразы ================= */
+    const phrases = [
+      "Люблю тебя!",
+      "Любимая Мама!",
+      "С праздником!"
+    ];
+
+    function scheduleNextPhrase() {
+      const delay = 2000 + Math.random() * 1000;
+      setTimeout(() => {
+        spawnPhrase();
+        scheduleNextPhrase();
+      }, delay);
+    }
+
+    function spawnPhrase() {
+      const text = phrases[Math.floor(Math.random() * phrases.length)];
+      const phraseElem = document.createElement('div');
+      phraseElem.className = 'floating-phrase';
+      phraseElem.textContent = text;
+      // Рандомный угол поворота (любое значение от 0 до 360 для фраз)
+      const angle = Math.floor(Math.random() * 90);
+      phraseElem.style.setProperty('--rotate', angle + 'deg');
+      // Рандомное положение на экране:
+      const maxX = window.innerWidth - 150;
+      const maxY = window.innerHeight - 100;
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+      phraseElem.style.left = x + 'px';
+      phraseElem.style.top = y + 'px';
+      document.body.appendChild(phraseElem);
+      requestAnimationFrame(() => {
+        phraseElem.style.opacity = '1';
+      });
+      setTimeout(() => {
+        phraseElem.style.opacity = '0';
+        setTimeout(() => { phraseElem.remove(); }, 1000);
+      }, 2000);
+    }
+
+    scheduleNextPhrase();
+
+    /* ================= Всплывающая картинка ================= */
+    function spawnPicture() {
+      // Замените URL на нужную вам картинку
+      const imageURL = 'https://cs14.pikabu.ru/post_img/2023/10/05/5/1696491958117834870.jpg';
+      const imgElem = document.createElement('img');
+      imgElem.src = imageURL;
+      imgElem.className = 'floating-picture';
+      // Вычисляем случайный угол в диапазоне от -45° до 45°
+      const angle = -45 + Math.random() * 90;
+      imgElem.style.setProperty('--rotate', angle + 'deg');
+      // Рандомное положение на экране (учитывая размер картинки)
+      const maxX = window.innerWidth - 250;
+      const maxY = window.innerHeight - 250;
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
+      imgElem.style.left = x + 'px';
+      imgElem.style.top = y + 'px';
+      document.body.appendChild(imgElem);
+      requestAnimationFrame(() => {
+        imgElem.style.opacity = '1';
+      });
+      setTimeout(() => {
+        imgElem.style.opacity = '0';
+        setTimeout(() => { imgElem.remove(); }, 1000);
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
